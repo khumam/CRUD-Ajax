@@ -16,30 +16,53 @@
     <div class="container my-5">
         <h1 class="text-center">Search</h1>
         <div class="row">
-            <div class="col-12">
-                <form id='searchform'>
+            <div class="col-6">
+                <div class="row">
+                    <div class="col-12">
+                        <form id='searchform'>
+                            <div class="form-group">
+                                <input type="text" name="search" id="search" class="form-control" onkeyup='searching()'>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-success btn-block" type="button" id="btn-search" onclick="searchBtn()">Search</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-12 mt-3">
+                        <table class="table table-bordered">
+                            <thead>
+                                <th>No</th>
+                                <th>Nama</th>
+                                <th>Alamat</th>
+                                <th>Aktif</th>
+                            </thead>
+                            <tbody id="databody"></tbody>
+                        </table>
+                        <!-- <div class="row" id="databody">
+                </div> -->
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <form id='selectsearch'>
                     <div class="form-group">
-                        <input type="text" name="search" id="search" class="form-control" onkeyup='searching()'>
+                        <select name="query" id="query" class="custom-select" placeholder='Alamat' onchange="changeNama()">
+                            <option value="">-- PILIH ALAMAT --</option>
+                        </select>
                     </div>
                     <div class="form-group">
-                        <button class="btn btn-success btn-block" type="button" id="btn-search" onclick="searchBtn()">Search</button>
+                        <select name="resultquery" id="resultquery" class="custom-select" placeholder='Nama' onchange="getUser()">
+                            <option value="">-- PILIH NAMA --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <p id="detailnama"></p>
+                        <p id="detailalamat"></p>
                     </div>
                 </form>
             </div>
-            <div class="col-12 mt-3">
-                <!-- <table class="table table-bordered">
-                    <thead>
-                        <th>No</th>
-                        <th>Nama</th>
-                        <th>Alamat</th>
-                        <th>Aktif</th>
-                    </thead>
-                    <tbody id="databody"></tbody>
-                </table> -->
-                <div class="row" id="databody">
-                </div>
-            </div>
         </div>
+
     </div>
 
 
@@ -69,9 +92,9 @@
                     $('#databody').empty();
 
                     $.each(res, function(index, val) {
-                        // data += '<tr><td>' + (index + 1) + '</td><td>' + val.nama + '</td><td>' + val.alamat + '</td><td>' + val.aktif + '</td></tr>';
+                        data += '<tr><td>' + (index + 1) + '</td><td>' + val.nama + '</td><td>' + val.alamat + '</td><td>' + val.aktif + '</td></tr>';
 
-                        data += '<div class="col-3"><div class="card"><div class="card-body">' + val.nama + '</div></div></div>';
+                        // data += '<div class="col-3"><div class="card"><div class="card-body">' + val.nama + '</div></div></div>';
                     });
 
                     $('#databody').append(data);
@@ -89,9 +112,74 @@
             search(key);
         }
 
+        function getAlamat() {
+            $.ajax({
+                url: 'fnsearch.php',
+                method: 'post',
+                data: {
+                    tipe: 'alamat'
+                },
+                success: function(response) {
+                    var res = JSON.parse(response);
+                    var data = '';
+
+
+                    $.each(res, function(index, val) {
+                        data += '<option value="' + val.alamat + '">' + val.alamat + '</option>'
+                    });
+
+                    $('#query').append(data);
+                }
+            })
+        }
+
+        function changeNama() {
+            // console.log(this.value);
+            $.ajax({
+                url: 'fnsearch.php',
+                method: 'post',
+                data: {
+                    tipe: 'nama',
+                    value: $('#query').val()
+                },
+                success: function(response) {
+                    var res = JSON.parse(response);
+                    var data = '';
+
+                    $('#resultquery').empty();
+
+                    $.each(res, function(index, val) {
+                        data += '<option value="' + val.id + '">' + val.nama + '</option>'
+                    });
+
+                    $('#resultquery').append(data);
+                }
+            })
+        }
+
+        function getUser() {
+            $.ajax({
+                url: 'fnsearch.php',
+                method: 'post',
+                data: {
+                    tipe: 'getnama',
+                    value: $('#resultquery').val()
+                },
+                success: function(response) {
+                    var res = JSON.parse(response);
+                    console.log(res);
+                    $('#detailnama').html('');
+                    $('#detailalamat').html('');
+                    $('#detailnama').html('Nama = ' + res.nama);
+                    $('#detailalamat').html('Alamat = ' + res.alamat);
+                }
+            })
+        }
+
 
         $(document).ready(function() {
             search();
+            getAlamat();
         });
     </script>
 </body>
