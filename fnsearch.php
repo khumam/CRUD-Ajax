@@ -5,7 +5,16 @@ include 'db.php';
 if (isset($_POST['key'])) {
     if ($_POST['key'] == null) {
 
-        $sql = "SELECT * FROM user WHERE deleted=0";
+        if ($_POST['page'] == 0) {
+            $sql = "SELECT * FROM user WHERE deleted=0 LIMIT 10";
+        } else {
+            $start_from = $_POST['page'] * 10;
+            $sql = "SELECT * FROM user WHERE deleted=0 LIMIT $start_from, 10";
+        }
+
+        $sql_halaman = "SELECT count(*) as total FROM user WHERE deleted = 0";
+        $query_halaman = mysqli_query($db, $sql_halaman);
+        $total_halaman = mysqli_fetch_assoc($query_halaman);
 
         $query = mysqli_query($db, $sql);
 
@@ -15,17 +24,27 @@ if (isset($_POST['key'])) {
             $data[] = $row;
         }
 
-        echo json_encode($data);
+        $result = [
+            'data' => $data,
+            'total' => $total_halaman['total']
+        ];
+
+        echo json_encode($result);
     } else {
+
         $key = $_POST['key'];
 
-        $sql = "SELECT * FROM user WHERE (nama LIKE '%$key%' OR alamat LIKE '%$key%') AND deleted=0 ";
+        if ($_POST['page'] == 0) {
+            $sql = "SELECT * FROM user WHERE (nama LIKE '%$key%' OR alamat LIKE '%$key%') AND deleted=0 LIMIT 10";
+        } else {
+            $start_from = $_POST['page'] * 10;
+            $sql = "SELECT * FROM user WHERE (nama LIKE '%$key%' OR alamat LIKE '%$key%') AND deleted=0 LIMIT $start_from, 10";
+        }
 
-        // JOSEPH
-        // = JOSEPH
-        // %OS .......OS
-        // OS% OS.......
-        // %OS%  .......OS.......
+
+        $sql_halaman = "SELECT count(*) as total FROM user WHERE (nama LIKE '%$key%' OR alamat LIKE '%$key%') AND deleted=0";
+        $query_halaman = mysqli_query($db, $sql_halaman);
+        $total_halaman = mysqli_fetch_assoc($query_halaman);
 
         $query = mysqli_query($db, $sql);
 
@@ -35,7 +54,12 @@ if (isset($_POST['key'])) {
             $data[] = $row;
         }
 
-        echo json_encode($data);
+        $result = [
+            'data' => $data,
+            'total' => $total_halaman['total']
+        ];
+
+        echo json_encode($result);
     }
 } else {
     if (isset($_POST['tipe'])) {

@@ -1,3 +1,11 @@
+<?php
+if (isset($_GET['page'])) {
+    $page = $_GET['page'];
+} else {
+    $page = 0;
+}
+?>
+
 <!doctype html>
 <html lang="en">
 
@@ -30,19 +38,30 @@
                         </form>
                     </div>
                     <div class="col-12 mt-3">
-                        <table class="table table-bordered" id="myTable">
-                            <thead>
-                                <th>No</th>
-                                <th>Nama</th>
-                                <th>Alamat</th>
-                                <th>Aktif</th>
-                                <th style="width: 100px;">Aksi</th>
-                            </thead>
-                            <tbody id="databody">
-                            </tbody>
-                        </table>
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="myTable">
+                                <thead>
+                                    <th>No</th>
+                                    <th>Nama</th>
+                                    <th>Alamat</th>
+                                    <th>Aktif</th>
+                                    <th style="width: 100px;">Aksi</th>
+                                </thead>
+                                <tbody id="databody">
+                                </tbody>
+                            </table>
+                        </div>
                         <!-- <div class="row" id="databody">
                 </div> -->
+                    </div>
+                    <div class="col-12 mt-3 d-flex justify-content-center">
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination" id="tombolnavigasi">
+                                <!-- <li class="page-item"><a class="page-link" href="#">Previous</a></li> -->
+
+                                <!-- <li class="page-item"><a class="page-link" href="#">Next</a></li> -->
+                            </ul>
+                        </nav>
                     </div>
                 </div>
             </div>
@@ -53,10 +72,13 @@
                             <option value="">-- PILIH ALAMAT --</option>
                         </select>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="selectnama">
                         <select name="resultquery" id="resultquery" class="custom-select" placeholder='Nama' onchange="getUser()">
                             <option value="">-- PILIH NAMA --</option>
                         </select>
+                    </div>
+                    <div class="form-group" id="tambahnama" style="display: none;">
+                        <input type="text" name="resultquery" id="resultnama" class="form-control" placeholder="Nama" disabled>
                     </div>
                     <div class="form-group">
                         <p id="detailnama"></p>
@@ -125,15 +147,18 @@
                 url: 'fnsearch.php',
                 method: 'post',
                 data: {
-                    key: key
+                    key: key,
+                    page: "<?php echo $page; ?>"
                 },
                 success: function(response) {
                     var res = JSON.parse(response);
+                    console.log(res);
                     var data = '';
+                    var hal = <?php echo $page; ?> * 10;
                     $('#databody').empty();
 
-                    $.each(res, function(index, val) {
-                        data += '<tr><td>' + (index + 1) + '</td><td>' + val.nama + '</td><td>' + val.alamat + '</td><td>' + val.aktif + '</td><td><div class="btn-group">' +
+                    $.each(res.data, function(index, val) {
+                        data += '<tr><td>' + (hal + (index + 1)) + '</td><td>' + val.nama + '</td><td>' + val.alamat + '</td><td>' + val.aktif + '</td><td><div class="btn-group">' +
                             '<button class="btn btn-success editbtn" data-id="' + val.id + '" data-nama="' + val.nama + '" data-alamat="' + val.alamat + '" data-aktif="' + val.aktif + '">Edit</button>' +
                             '<button class="btn btn-danger deletebtn" data-id="' + val.id + '">Delete</button></div></td></tr>';
 
@@ -141,6 +166,13 @@
                     });
 
                     $('#databody').append(data);
+
+                    // paginasi
+                    $('#tombolnavigasi').empty();
+                    var total_halaman = res.total / 10;
+                    for (var indexhalaman = 0; indexhalaman < total_halaman; indexhalaman++) {
+                        $('#tombolnavigasi').append('<li class="page-item"><a class="page-link" href="http://localhost/ajax/search.php?page=' + indexhalaman + '">' + (indexhalaman + 1) + '</a></li>');
+                    }
                 }
             })
         }
@@ -178,6 +210,11 @@
 
         function changeNama() {
             // console.log(this.value);
+            $('#resultquery').prop('disabled', false);
+            $('#resultnama').prop('disabled', true);
+            $('#tambahnama').hide();
+            $('#selectnama').show();
+
             $.ajax({
                 url: 'fnsearch.php',
                 method: 'post',
@@ -195,28 +232,23 @@
                         data += '<option value="' + val.id + '">' + val.nama + '</option>'
                     });
 
+                    data += '<option value="tambahnama123"> -- TAMBAH NAMA -- </option>';
+
                     $('#resultquery').append(data);
+
                 }
             })
         }
 
         function getUser() {
-            $.ajax({
-                url: 'fnsearch.php',
-                method: 'post',
-                data: {
-                    tipe: 'getnama',
-                    value: $('#resultquery').val()
-                },
-                success: function(response) {
-                    var res = JSON.parse(response);
-                    console.log(res);
-                    $('#detailnama').html('');
-                    $('#detailalamat').html('');
-                    $('#detailnama').html('Nama = ' + res.nama);
-                    $('#detailalamat').html('Alamat = ' + res.alamat);
-                }
-            })
+
+            if ($('#resultquery').val() == 'tambahnama123') {
+                $('#resultquery').prop('disabled', true);
+                $('#resultnama').prop('disabled', false);
+                $('#tambahnama').show();
+                $('#selectnama').hide();
+            }
+
         }
 
 
@@ -274,6 +306,10 @@
                     // window.location.reload();
                 }
             })
+        }
+
+        function tambahnama(obj) {
+            console.log($(obj));
         }
     </script>
 </body>
