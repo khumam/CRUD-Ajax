@@ -9,6 +9,7 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
 
+    <link rel="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css">
     <title>Hello, world!</title>
 </head>
 
@@ -16,7 +17,7 @@
     <div class="container my-5">
         <h1 class="text-center">Search</h1>
         <div class="row">
-            <div class="col-6">
+            <div class="col-12">
                 <div class="row">
                     <div class="col-12">
                         <form id='searchform'>
@@ -29,21 +30,23 @@
                         </form>
                     </div>
                     <div class="col-12 mt-3">
-                        <table class="table table-bordered">
+                        <table class="table table-bordered" id="myTable">
                             <thead>
                                 <th>No</th>
                                 <th>Nama</th>
                                 <th>Alamat</th>
                                 <th>Aktif</th>
+                                <th style="width: 100px;">Aksi</th>
                             </thead>
-                            <tbody id="databody"></tbody>
+                            <tbody id="databody">
+                            </tbody>
                         </table>
                         <!-- <div class="row" id="databody">
                 </div> -->
                     </div>
                 </div>
             </div>
-            <div class="col-6">
+            <!-- <div class="col-6">
                 <form id='selectsearch'>
                     <div class="form-group">
                         <select name="query" id="query" class="custom-select" placeholder='Alamat' onchange="changeNama()">
@@ -60,9 +63,46 @@
                         <p id="detailalamat"></p>
                     </div>
                 </form>
-            </div>
+            </div> -->
         </div>
 
+    </div>
+    <div class="modal fade" id="editmodal" tabindex="-1" aria-labelledby="editmodalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editmodalLabel">Edit data</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editform">
+                        <input type="hidden" id="data_id" name="id" value="">
+                        <div class="form-group">
+                            <label for="data_nama">Nama</label>
+                            <input type="text" name="nama" id="data_nama" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="data_alamat">Alamat</label>
+                            <input type="text" name="alamat" id="data_alamat" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="data_aktif">Aktif</label>
+                            <select name="aktif" id="data_aktif" class="custom-select">
+                                <option value="0">Tidak aktif</option>
+                                <option value="1">Aktif</option>
+                            </select>
+
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="updateData()">Save changes</button>
+                </div>
+            </div>
+        </div>
     </div>
 
 
@@ -71,6 +111,7 @@
     <!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
     <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
 
     <!-- Option 2: jQuery, Popper.js, and Bootstrap JS
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
@@ -92,7 +133,9 @@
                     $('#databody').empty();
 
                     $.each(res, function(index, val) {
-                        data += '<tr><td>' + (index + 1) + '</td><td>' + val.nama + '</td><td>' + val.alamat + '</td><td>' + val.aktif + '</td></tr>';
+                        data += '<tr><td>' + (index + 1) + '</td><td>' + val.nama + '</td><td>' + val.alamat + '</td><td>' + val.aktif + '</td><td><div class="btn-group">' +
+                            '<button class="btn btn-success editbtn" data-id="' + val.id + '" data-nama="' + val.nama + '" data-alamat="' + val.alamat + '" data-aktif="' + val.aktif + '">Edit</button>' +
+                            '<button class="btn btn-danger deletebtn" data-id="' + val.id + '">Delete</button></div></td></tr>';
 
                         // data += '<div class="col-3"><div class="card"><div class="card-body">' + val.nama + '</div></div></div>';
                     });
@@ -180,7 +223,58 @@
         $(document).ready(function() {
             search();
             getAlamat();
+            // $('#myTable').DataTable();
         });
+
+        $(document).on('click', '.editbtn', function() {
+            var id = $(this).data('id');
+            var nama = $(this).data('nama');
+            var alamat = $(this).data('alamat');
+            var aktif = $(this).data('aktif');
+
+            $('#data_id').val(id);
+            $('#data_nama').val(nama);
+            $('#data_alamat').val(alamat);
+            $('#data_aktif').val(aktif);
+
+            $('#editmodal').modal('show');
+
+        });
+
+        $(document).on('click', '.deletebtn', function() {
+            console.log($(this).data('id'));
+
+            if (confirm('Apakah anda ingin menghapus data ini?')) {
+                $.ajax({
+                    url: 'delete.php',
+                    method: 'post',
+                    data: {
+                        id: $(this).data('id')
+                    },
+                    success: function(response) {
+                        console.log(response);
+                        search();
+                        // window.location.reload();
+                    }
+                })
+            }
+
+        });
+
+        function updateData() {
+            var data = $('#editform').serialize();
+            $.ajax({
+                url: 'update.php',
+                method: 'post',
+                data: data,
+                success: function(response) {
+                    console.log(response);
+                    $('#editmodal').modal('hide');
+                    search();
+                    // window.location.reload();
+                }
+            })
+        }
     </script>
 </body>
 

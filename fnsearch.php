@@ -5,7 +5,7 @@ include 'db.php';
 if (isset($_POST['key'])) {
     if ($_POST['key'] == null) {
 
-        $sql = "SELECT * FROM user";
+        $sql = "SELECT * FROM user WHERE deleted=0";
 
         $query = mysqli_query($db, $sql);
 
@@ -19,7 +19,7 @@ if (isset($_POST['key'])) {
     } else {
         $key = $_POST['key'];
 
-        $sql = "SELECT * FROM user WHERE nama LIKE '%$key%' OR alamat LIKE '%$key%' ";
+        $sql = "SELECT * FROM user WHERE (nama LIKE '%$key%' OR alamat LIKE '%$key%') AND deleted=0 ";
 
         // JOSEPH
         // = JOSEPH
@@ -41,7 +41,7 @@ if (isset($_POST['key'])) {
     if (isset($_POST['tipe'])) {
         if ($_POST['tipe'] == 'alamat') {
             // $sql = "SELECT id, alamat FROM user"; // Untuk beda table
-            $sql = "SELECT distinct(alamat) FROM user";
+            $sql = "SELECT distinct(alamat) FROM user WHERE deleted=0";
 
             $query = mysqli_query($db, $sql);
 
@@ -54,7 +54,7 @@ if (isset($_POST['key'])) {
             echo json_encode($data);
         } else if ($_POST['tipe'] == 'getnama') {
             $query = $_POST['value'];
-            $sql = "SELECT * FROM user WHERE id = $query";
+            $sql = "SELECT * FROM user WHERE id = $query AND deleted=0";
 
             $query = mysqli_query($db, $sql);
 
@@ -65,7 +65,7 @@ if (isset($_POST['key'])) {
             $query = $_POST['value'];
 
             // $sql = "SELECT id, nama FROM user WHERE id = $query"; // Untuk dua table
-            $sql = "SELECT id, nama FROM user WHERE alamat = '$query'";
+            $sql = "SELECT id, nama FROM user WHERE alamat = '$query' AND deleted=0";
 
             $query = mysqli_query($db, $sql);
 

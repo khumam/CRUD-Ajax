@@ -2,10 +2,10 @@
 
 include 'db.php';
 
-if (isset($_POST['namaupdate']) && isset($_POST['alamatupdate'])) {
-    $nama = $_POST['namaupdate'];
-    $alamat = $_POST['alamatupdate'];
-    $aktif = $_POST['aktifupdate'];
+if (isset($_POST['nama']) && isset($_POST['alamat'])) {
+    $nama = $_POST['nama'];
+    $alamat = $_POST['alamat'];
+    $aktif = $_POST['aktif'];
     $id = $_POST['id'];
 
     $sql = "UPDATE user SET nama = '$nama', alamat='$alamat', aktif=$aktif WHERE id = $id";

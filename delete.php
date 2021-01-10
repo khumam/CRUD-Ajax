@@ -5,7 +5,8 @@ include 'db.php';
 if (isset($_POST['id'])) {
     $id = $_POST['id'];
 
-    $sql = "DELETE FROM user WHERE id = $id";
+    // $sql = "DELETE FROM user WHERE id = $id";
+    $sql = "UPDATE user SET deleted=1 WHERE id = $id";
 
     $query = mysqli_query($db, $sql);
 
