@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!doctype html>
 <html lang="en">
 
@@ -13,20 +16,22 @@
 </head>
 
 <body>
-    <h1>AJAX</h1>
+    <h1 class="mt-5 text-center">AJAX</h1>
 
-    <div class="container mt-5">
-        <h1>Insert</h1>
-        <form id='data'>
-            <input type="text" class="form-control" name="nama" id="nama" placeholder="nama">
-            <input type="text" class="form-control" name="alamat" id="alamat" placeholder="alamat">
-            <select name="aktif" id="aktif" class="custom-select">
-                <option value="0">Tidak aktif</option>
-                <option value="1">Aktif</option>
-            </select>
-            <button type="button" id="btn-submit" class="btn btn-success btn-submit" onclick="sendData()">Kirim data</button>
-        </form>
-    </div>
+    <?php if (isset($_SESSION['role']) && ($_SESSION['role'] == 'admin' || $_SESSION['role'] == 'petugas')) { ?>
+        <div class="container mt-5">
+            <h1>Insert</h1>
+            <form id='data'>
+                <input type="text" class="form-control" name="nama" id="nama" placeholder="nama">
+                <input type="text" class="form-control" name="alamat" id="alamat" placeholder="alamat">
+                <select name="aktif" id="aktif" class="custom-select">
+                    <option value="0">Tidak aktif</option>
+                    <option value="1">Aktif</option>
+                </select>
+                <button type="button" id="btn-submit" class="btn btn-success btn-submit" onclick="sendData()">Kirim data</button>
+            </form>
+        </div>
+    <?php } ?>
 
     <div class="container mt-5">
         <h1>Update</h1>
